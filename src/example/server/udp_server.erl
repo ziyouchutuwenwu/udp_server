@@ -18,10 +18,13 @@ loop(Socket, ConfigBehaviorImpl) ->
         {err, not_found} ->
           {ok, NewPid} = udp_client_handler_sup:start_child(Socket, ConfigBehaviorImpl),
           client_info_saver:set(Host, Port, NewPid),
-          NewPid! {udp, newsock, Host, Port, Bin},
+          NewPid! {udp, newsock, self(), Host, Port, Bin},
           loop(Socket, ConfigBehaviorImpl);
         {ok, Pid} ->
           Pid ! {udp, data, Socket, Host, Port, Bin},
           loop(Socket, ConfigBehaviorImpl)
-      end
+      end;
+    {child_pid_exit, Host, Port} ->
+      client_info_saver:remove(Host, Port),
+      loop(Socket, ConfigBehaviorImpl)
   end.
