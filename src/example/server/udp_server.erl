@@ -16,6 +16,7 @@ loop(Socket, ConfigBehaviorImpl) ->
     {udp, Socket, Host, Port, Bin} ->
       case client_info_saver:find(Host, Port) of
         {err, not_found} ->
+          inet:setopts(Socket, [{active, 3}]),
           {ok, NewPid} = udp_client_handler_sup:start_child(Socket, ConfigBehaviorImpl),
           client_info_saver:set(Host, Port, NewPid),
           NewPid! {udp, newsock, self(), Host, Port, Bin},
@@ -26,5 +27,10 @@ loop(Socket, ConfigBehaviorImpl) ->
       end;
     {child_pid_exit, Host, Port} ->
       client_info_saver:remove(Host, Port),
-      loop(Socket, ConfigBehaviorImpl)
+      loop(Socket, ConfigBehaviorImpl);
+    {udp_passive, Socket} ->
+      inet:setopts(Socket, [{active, 3}]),
+      loop(Socket, ConfigBehaviorImpl);
+    Other ->
+      io:format("server got other msg ~p~n", [Other])
   end.

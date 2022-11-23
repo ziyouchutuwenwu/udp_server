@@ -28,20 +28,13 @@ spawn_proc_to_send(Host, Port) ->
 
 loop_to_send(Host, Port)->
   {ok, Socket} = gen_udp:open(0, udp_opts()),
+  ok = gen_udp:send(Socket, Host, Port, "11111111111"),
   loop(Socket, Host, Port).
 
 loop(Socket, Ip, Port) ->
-  ok = gen_udp:send(Socket, Ip, Port, "11111111111"),
-  erlang:send_after(5000, self(), {on_timer}),
-
   receive
     {udp, Socket, _, _, Bin} ->
       io:format("client got msg ~p~n", [Bin]),
       gen_udp:send(Socket, Ip, Port, "22222"),
-      loop(Socket, Ip, Port);
-    {on_timer} ->
-      io:format("on_timer~n"),
-      gen_udp:close(Socket)
-  after 20000 ->
-    error
+      loop(Socket, Ip, Port)
   end.

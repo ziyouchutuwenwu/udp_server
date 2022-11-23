@@ -7,4 +7,5 @@
 on_client_data(_Socket, _ClientIp, _ClientPort, DataBin) ->
   Info = binary_to_list(DataBin),
   io:format("收到客户端数据 ~p~n", [Info]),
+  gen_udp:send(_Socket, _ClientIp, _ClientPort, "22222"),
   noreplay.
