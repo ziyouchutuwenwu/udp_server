@@ -7,5 +7,3 @@
 `rebar3 shell` 进入调试 shell
 
 `rebar3 as prod tar` 打包
-# udp_server
-# udp_server
