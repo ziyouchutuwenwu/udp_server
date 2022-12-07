@@ -1,4 +1,4 @@
--module(udp_client_handler_sup).
+-module(udp_client_sup).
 
 -behaviour(supervisor).
 
